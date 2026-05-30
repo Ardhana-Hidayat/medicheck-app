@@ -1,3 +1,5 @@
+// Sumber: Matondang (2023), Jurnal Remik Vol.7 No.3
+// G067–G068: tambahan berdasarkan review dr. Arif Fatah Hidayat (Klinik AMC, 22 Mei 2026)
 export const gejala = [
   { id: "G001", nama: "Ada darah dalam urine" },
   { id: "G002", nama: "Aritmia (detak jantung tidak beraturan)" },
@@ -65,4 +67,7 @@ export const gejala = [
   { id: "G064", nama: "Sulit berkonsentrasi" },
   { id: "G065", nama: "Telinga berdengung" },
   { id: "G066", nama: "Urine mengandung keton (berbau buah)" },
+  // Tambahan review dokter — dr. Arif Fatah Hidayat, Klinik AMC, 22 Mei 2026
+  { id: "G067", nama: "Rasa berat di tangan atau kaki" },
+  { id: "G068", nama: "Perut kembung" },
 ];

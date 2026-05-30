@@ -5,7 +5,6 @@ import {
   RotateCcw,
   ChevronDown,
   SearchX,
-  Stethoscope,
   HeartPulse,
 } from "lucide-react";
 import { gejala } from "../data/gejala";
@@ -28,7 +27,6 @@ export default function Hasil() {
         return;
       }
       setHasilDiagnosa(parsed);
-      // auto-expand first result if available
       if (parsed.length > 0) {
         setExpandedId(parsed[0].penyakit.id);
       }
@@ -42,23 +40,28 @@ export default function Hasil() {
     navigate("/diagnosa");
   };
 
-  const getScoreStyle = (score) => {
-    if (score >= 70)
+  /**
+   * Indikator visual berdasarkan jumlah gejala cocok — bukan persentase.
+   * Digunakan hanya untuk membedakan tampilan secara visual, bukan sebagai
+   * nilai kepastian/confidence yang diklaim secara medis.
+   */
+  const getMatchStyle = (gejalaCocok) => {
+    if (gejalaCocok >= 5)
       return {
-        label: "Kemungkinan Tinggi",
         badge: "text-rose-700 bg-rose-50 ring-rose-200",
-        bar: "from-rose-500 to-rose-400",
+        bar: "bg-rose-400",
+        dot: "bg-rose-400",
       };
-    if (score >= 40)
+    if (gejalaCocok >= 3)
       return {
-        label: "Kemungkinan Sedang",
         badge: "text-amber-700 bg-amber-50 ring-amber-200",
-        bar: "from-amber-500 to-amber-400",
+        bar: "bg-amber-400",
+        dot: "bg-amber-400",
       };
     return {
-      label: "Kemungkinan Rendah",
       badge: "text-slate-600 bg-slate-100 ring-slate-200",
-      bar: "from-slate-400 to-slate-300",
+      bar: "bg-slate-400",
+      dot: "bg-slate-400",
     };
   };
 
@@ -78,7 +81,8 @@ export default function Hasil() {
             Hasil Diagnosa
           </h1>
           <p className="text-sm text-slate-500">
-            Berikut kemungkinan penyakit berdasarkan gejala yang Anda pilih.
+            Berikut kemungkinan penyakit berdasarkan gejala yang Anda pilih,
+            diurutkan dari kecocokan terbanyak.
           </p>
         </div>
 
@@ -86,8 +90,8 @@ export default function Hasil() {
         <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50/70 border border-amber-200/60 mb-6">
           <Info className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-amber-700 leading-relaxed">
-            Hasil ini adalah panduan awal. Selalu{" "}
-            <strong>konsultasikan dengan dokter</strong> untuk diagnosis dan
+            Hasil ini adalah panduan awal berbasis sistem pakar.{" "}
+            <strong>Konsultasikan dengan dokter</strong> untuk diagnosis dan
             penanganan yang tepat.
           </p>
         </div>
@@ -96,16 +100,27 @@ export default function Hasil() {
         {hasilDiagnosa.length > 0 ? (
           <div className="space-y-3">
             {hasilDiagnosa.map((hasil, index) => {
-              const { penyakit, score, gejalaCocok, totalGejala, gejalaCocokList } =
-                hasil;
-              const style = getScoreStyle(score);
+              const { penyakit, gejalaCocok, totalGejala, gejalaCocokList } = hasil;
+              const style = getMatchStyle(gejalaCocok);
               const isExpanded = expandedId === penyakit.id;
+              const isTop = index === 0;
 
               return (
                 <div
                   key={penyakit.id}
-                  className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+                  className={`bg-white rounded-xl border shadow-sm overflow-hidden ${
+                    isTop ? "border-blue-200" : "border-slate-200"
+                  }`}
                 >
+                  {/* Label paling cocok untuk hasil pertama */}
+                  {isTop && (
+                    <div className="px-4 pt-2.5 pb-0">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500">
+                        ★ Kecocokan Tertinggi
+                      </span>
+                    </div>
+                  )}
+
                   {/* Header — always visible */}
                   <button
                     type="button"
@@ -124,24 +139,38 @@ export default function Hasil() {
                             {penyakit.kode}
                           </span>
                         </div>
-                        <div className="flex items-center gap-3">
+
+                        {/* Gejala cocok — informasi utama, tanpa persentase */}
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span
                             className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 ${style.badge}`}
                           >
-                            {style.label}
+                            {gejalaCocok} gejala cocok
                           </span>
                           <span className="text-xs text-slate-400">
-                            {gejalaCocok}/{totalGejala} gejala cocok
+                            dari {totalGejala} gejala terdaftar
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        <span className="text-2xl font-extrabold text-slate-800 tabular-nums">
-                          {score}
-                          <span className="text-base font-bold text-slate-400">
-                            %
-                          </span>
-                        </span>
+
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {/* Indikator visual sederhana — jumlah dot = gejala cocok, max 5 */}
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: Math.min(gejalaCocok, 5) }).map((_, i) => (
+                            <span
+                              key={i}
+                              className={`w-2 h-2 rounded-full ${style.dot}`}
+                            />
+                          ))}
+                          {Array.from({
+                            length: Math.max(0, 5 - Math.min(gejalaCocok, 5)),
+                          }).map((_, i) => (
+                            <span
+                              key={`empty-${i}`}
+                              className="w-2 h-2 rounded-full bg-slate-100"
+                            />
+                          ))}
+                        </div>
                         <ChevronDown
                           className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
                             isExpanded ? "rotate-180" : ""
@@ -150,11 +179,13 @@ export default function Hasil() {
                       </div>
                     </div>
 
-                    {/* Progress bar */}
+                    {/* Progress bar — proporsional terhadap totalGejala, bukan persentase klinis */}
                     <div className="mt-3 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                       <div
-                        className={`h-full rounded-full bg-gradient-to-r ${style.bar} transition-all duration-700 ease-out`}
-                        style={{ width: `${score}%` }}
+                        className={`h-full rounded-full ${style.bar} transition-all duration-700 ease-out`}
+                        style={{
+                          width: `${Math.round((gejalaCocok / totalGejala) * 100)}%`,
+                        }}
                       />
                     </div>
                   </button>
@@ -217,8 +248,8 @@ export default function Hasil() {
               Tidak Ada Kecocokan
             </h3>
             <p className="text-sm text-slate-500 max-w-sm mx-auto">
-              Gejala yang Anda pilih tidak cocok dengan penyakit dalam basis data
-              kami. Silakan coba kembali dengan gejala lain.
+              Gejala yang Anda pilih tidak cocok dengan penyakit dalam basis
+              pengetahuan kami. Silakan coba kembali dengan gejala lain.
             </p>
           </div>
         )}

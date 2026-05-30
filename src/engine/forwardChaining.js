@@ -23,39 +23,31 @@ export const forwardChaining = (gejalaDipilih) => {
     return [];
   }
 
-  const setGejalaDipilih = new Set(gejalaDipilih);
+  const workingMemory = new Set(gejalaDipilih);
   const hasil = [];
 
   penyakit.forEach((p) => {
-    // a. Filter rules untuk penyakit ini
     const rulesPenyakit = rules.filter((r) => r.penyakitId === p.id);
-    const gejalaPenyakit = rulesPenyakit.map((r) => r.gejalaId);
-    
-    // Total gejala penyakit ini di rules
-    const totalGejala = gejalaPenyakit.length;
 
-    // b. Hitung irisan antara gejalaPenyakit dan gejalaDipilih
-    const gejalaCocokList = gejalaPenyakit.filter((g) => setGejalaDipilih.has(g));
+    const gejalaCocokList = rulesPenyakit
+      .filter((r) => workingMemory.has(r.gejalaId))
+      .map((r) => r.gejalaId);
+
     const gejalaCocok = gejalaCocokList.length;
 
-    // c. Hitung score = (cocok / total) * 100
+    // Jika minimal 1 rule terpicu (IF terpenuhi) → THEN: penyakit ini teridentifikasi
     if (gejalaCocok > 0) {
-      const score = Math.round((gejalaCocok / totalGejala) * 100);
-      
-      // d. Masukkan ke hasil
       hasil.push({
         penyakit: p,
         gejalaCocok,
-        totalGejala,
-        score,
+        totalGejala: rulesPenyakit.length,
         gejalaCocokList,
       });
     }
   });
 
-  // 3. Sort hasil descending by score
-  hasil.sort((a, b) => b.score - a.score);
+  // Urutkan descending berdasarkan jumlah gejala cocok
+  hasil.sort((a, b) => b.gejalaCocok - a.gejalaCocok);
 
-  // 4. Return hasil
   return hasil;
 };
