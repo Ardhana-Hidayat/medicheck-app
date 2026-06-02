@@ -17,13 +17,13 @@ export default function Hasil() {
   useEffect(() => {
     const data = sessionStorage.getItem("hasilDiagnosa");
     if (!data) {
-      navigate("/diagnosa");
+      navigate("/");
       return;
     }
     try {
       const parsed = JSON.parse(data);
       if (!Array.isArray(parsed)) {
-        navigate("/diagnosa");
+        navigate("/");
         return;
       }
       setHasilDiagnosa(parsed);
@@ -31,13 +31,13 @@ export default function Hasil() {
         setExpandedId(parsed[0].penyakit.id);
       }
     } catch {
-      navigate("/diagnosa");
+      navigate("/");
     }
   }, [navigate]);
 
   const handleReset = () => {
     sessionStorage.removeItem("hasilDiagnosa");
-    navigate("/diagnosa");
+    navigate("/");
   };
 
   /**
@@ -73,116 +73,89 @@ export default function Hasil() {
   if (!hasilDiagnosa) return null;
 
   return (
-    <div className="flex-1 bg-slate-50/50">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div className="min-h-screen w-full bg-background text-slate-950 antialiased selection:bg-slate-100">
+      <div className="max-w-3xl mx-auto px-4 py-8 md:py-12 space-y-6">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
             Hasil Diagnosa
           </h1>
           <p className="text-sm text-slate-500">
-            Berikut kemungkinan penyakit berdasarkan gejala yang Anda pilih,
-            diurutkan dari kecocokan terbanyak.
+            Berikut kemungkinan penyakit berdasarkan gejala yang Anda pilih, diurutkan dari kecocokan terbanyak.
           </p>
         </div>
 
-        {/* Disclaimer */}
-        <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50/70 border border-amber-200/60 mb-6">
-          <Info className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-700 leading-relaxed">
+        {/* Disclaimer / Alert (Warning Style - Amber) */}
+        <div className="flex items-start gap-3 p-4 rounded-lg border border-amber-200 bg-amber-50/50 text-amber-900">
+          <Info className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+          <p className="text-sm leading-normal font-medium">
             Hasil ini adalah panduan awal berbasis sistem pakar.{" "}
-            <strong>Konsultasikan dengan dokter</strong> untuk diagnosis dan
-            penanganan yang tepat.
+            <span className="underline underline-offset-4 font-semibold text-amber-950">Konsultasikan dengan dokter</span> untuk diagnosis dan penanganan yang tepat.
           </p>
         </div>
 
         {/* Results */}
         {hasilDiagnosa.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {hasilDiagnosa.map((hasil, index) => {
               const { penyakit, gejalaCocok, totalGejala, gejalaCocokList } = hasil;
-              const style = getMatchStyle(gejalaCocok);
               const isExpanded = expandedId === penyakit.id;
               const isTop = index === 0;
 
               return (
                 <div
                   key={penyakit.id}
-                  className={`bg-white rounded-xl border shadow-sm overflow-hidden ${
-                    isTop ? "border-blue-200" : "border-slate-200"
-                  }`}
+                  className={`rounded-xl border bg-white text-slate-950 overflow-hidden transition-all ${isTop ? "ring-1 ring-slate-950 border-slate-950" : "border-slate-200"
+                    }`}
                 >
-                  {/* Label paling cocok untuk hasil pertama */}
+                  {/* Label paling cocok untuk hasil pertama (Top Match Header tanpa bintang & tanpa teks kanan) */}
                   {isTop && (
-                    <div className="px-4 pt-2.5 pb-0">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500">
-                        ★ Kecocokan Tertinggi
+                    <div className="bg-slate-900 px-4 py-1.5 flex items-center">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-white">
+                        Kecocokan Tertinggi
                       </span>
                     </div>
                   )}
 
-                  {/* Header — always visible */}
+                  {/* Header — always visible (Accordion Trigger) */}
                   <button
                     type="button"
-                    onClick={() =>
-                      setExpandedId(isExpanded ? null : penyakit.id)
-                    }
-                    className="w-full text-left p-4 sm:p-5 hover:bg-slate-50/50 transition-colors"
+                    onClick={() => setExpandedId(isExpanded ? null : penyakit.id)}
+                    className="w-full text-left p-5 hover:bg-slate-50/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2"
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-2">
-                          <h3 className="text-base font-bold text-slate-900">
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-base font-bold tracking-tight text-slate-900">
                             {penyakit.namaLengkap || penyakit.nama}
                           </h3>
-                          <span className="text-[10px] font-semibold tracking-wide text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                          <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 border border-slate-200/50">
                             {penyakit.kode}
                           </span>
                         </div>
 
-                        {/* Gejala cocok — informasi utama, tanpa persentase */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span
-                            className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 ${style.badge}`}
-                          >
+                        {/* Gejala cocok — informasi utama */}
+                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                          <span className="inline-flex items-center rounded-full bg-slate-100 border border-slate-200 px-2 py-0.5 font-semibold text-slate-900">
                             {gejalaCocok} gejala cocok
                           </span>
-                          <span className="text-xs text-slate-400">
-                            dari {totalGejala} gejala terdaftar
-                          </span>
+                          <span>dari {totalGejala} gejala terdaftar</span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {/* Indikator visual sederhana — jumlah dot = gejala cocok, max 5 */}
-                        <div className="flex gap-0.5">
-                          {Array.from({ length: Math.min(gejalaCocok, 5) }).map((_, i) => (
-                            <span
-                              key={i}
-                              className={`w-2 h-2 rounded-full ${style.dot}`}
-                            />
-                          ))}
-                          {Array.from({
-                            length: Math.max(0, 5 - Math.min(gejalaCocok, 5)),
-                          }).map((_, i) => (
-                            <span
-                              key={`empty-${i}`}
-                              className="w-2 h-2 rounded-full bg-slate-100"
-                            />
-                          ))}
-                        </div>
+                      {/* Kanan — Hanya Arrow Trigger (titik indikator dihapus) */}
+                      <div className="flex items-center shrink-0 mt-0.5">
                         <ChevronDown
-                          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                            isExpanded ? "rotate-180" : ""
-                          }`}
+                          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isExpanded ? "rotate-180 text-slate-900" : ""
+                            }`}
                         />
                       </div>
                     </div>
 
-                    {/* Progress bar — proporsional terhadap totalGejala, bukan persentase klinis */}
-                    <div className="mt-3 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    {/* Progress bar — Monokrom standar shadcn */}
+                    <div className="mt-4 w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                       <div
-                        className={`h-full rounded-full ${style.bar} transition-all duration-700 ease-out`}
+                        className="h-full rounded-full bg-slate-900 transition-all duration-500 ease-in-out"
                         style={{
                           width: `${Math.round((gejalaCocok / totalGejala) * 100)}%`,
                         }}
@@ -190,12 +163,12 @@ export default function Hasil() {
                     </div>
                   </button>
 
-                  {/* Expandable detail */}
+                  {/* Expandable detail (Accordion Content) */}
                   {isExpanded && (
-                    <div className="px-4 sm:px-5 pb-4 sm:pb-5 space-y-4 border-t border-slate-100">
+                    <div className="px-5 pb-5 space-y-5 border-t border-slate-100 bg-white">
                       {/* Deskripsi */}
-                      <div className="pt-4">
-                        <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                      <div className="pt-4 space-y-1">
+                        <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                           Deskripsi
                         </h4>
                         <p className="text-sm text-slate-600 leading-relaxed">
@@ -203,19 +176,18 @@ export default function Hasil() {
                         </p>
                       </div>
 
-                      {/* Gejala yang cocok */}
+                      {/* Gejala yang cocok (Tanpa icon HeartPulse) */}
                       {gejalaCocokList && gejalaCocokList.length > 0 && (
-                        <div>
-                          <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                        <div className="space-y-2">
+                          <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                             Gejala yang Cocok
                           </h4>
                           <div className="flex flex-wrap gap-1.5">
                             {gejalaCocokList.map((gId) => (
                               <span
                                 key={gId}
-                                className="inline-flex items-center gap-1 text-xs text-blue-700 bg-blue-50 px-2 py-1 rounded-md"
+                                className="inline-flex items-center text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-md"
                               >
-                                <HeartPulse className="w-3 h-3" />
                                 {getGejalaName(gId)}
                               </span>
                             ))}
@@ -224,12 +196,12 @@ export default function Hasil() {
                       )}
 
                       {/* Penanganan */}
-                      <div>
-                        <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                           Saran Penanganan
                         </h4>
-                        <div className="bg-emerald-50/60 border border-emerald-100 rounded-lg p-3">
-                          <p className="text-sm text-emerald-800 leading-relaxed">
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3.5">
+                          <p className="text-sm text-slate-700 leading-relaxed font-medium">
                             {penyakit.penanganan}
                           </p>
                         </div>
@@ -242,25 +214,28 @@ export default function Hasil() {
           </div>
         ) : (
           /* Empty state */
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-10 text-center">
-            <SearchX className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-            <h3 className="text-base font-semibold text-slate-800 mb-1">
-              Tidak Ada Kecocokan
-            </h3>
-            <p className="text-sm text-slate-500 max-w-sm mx-auto">
-              Gejala yang Anda pilih tidak cocok dengan penyakit dalam basis
-              pengetahuan kami. Silakan coba kembali dengan gejala lain.
-            </p>
+          <div className="bg-white rounded-xl border border-slate-200 p-12 text-center max-w-md mx-auto space-y-3">
+            <div className="mx-auto w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
+              <SearchX className="w-5 h-5 text-slate-400" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm font-semibold tracking-tight text-slate-900">
+                Tidak Ada Kecocokan
+              </h3>
+              <p className="text-xs text-slate-500 leading-normal">
+                Gejala yang Anda pilih tidak cocok dengan penyakit dalam basis pengetahuan kami. Silakan coba kembali dengan gejala lain.
+              </p>
+            </div>
           </div>
         )}
 
         {/* Actions */}
-        <div className="flex justify-center pt-6">
+        <div className="flex justify-center pt-2">
           <button
             onClick={handleReset}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-sm"
+            className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-10 border border-slate-200 bg-white px-4 py-2 hover:bg-slate-100 hover:text-slate-900 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 transition-colors"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-4 h-4" />
             Diagnosa Ulang
           </button>
         </div>

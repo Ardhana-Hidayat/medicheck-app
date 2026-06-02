@@ -5,22 +5,28 @@ export default function Navbar() {
   const location = useLocation();
 
   const navLinks = [
-    { to: "/", label: "Beranda" },
-    { to: "/diagnosa", label: "Diagnosa" },
+    { to: "/", label: "Diagnosa" },
   ];
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="flex justify-between h-14 items-center">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center shadow-sm">
-              <Stethoscope className="w-4.5 h-4.5 text-white" />
+    <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      <div className="max-w-5xl mx-auto px-4 md:px-6">
+        <div className="flex h-14 items-center justify-between">
+          
+          {/* Brand Logo */}
+          <Link 
+            to="/" 
+            className="flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 transition-opacity hover:opacity-90"
+          >
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-white shadow-sm">
+              <Stethoscope className="h-4 w-4" />
             </div>
-            <span className="text-base font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
+            <span className="text-sm font-bold tracking-tight text-slate-900">
               MediCheck
             </span>
           </Link>
+
+          {/* Navigation Links */}
           <div className="flex items-center gap-1">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.to;
@@ -28,10 +34,10 @@ export default function Navbar() {
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 disabled:pointer-events-none disabled:opacity-50 ${
                     isActive
-                      ? "text-blue-600 bg-blue-50"
-                      : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                      ? "bg-slate-100 text-slate-900 font-semibold"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
                   {link.label}
@@ -39,6 +45,7 @@ export default function Navbar() {
               );
             })}
           </div>
+
         </div>
       </div>
     </nav>
