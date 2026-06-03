@@ -5,7 +5,6 @@ import {
   RotateCcw,
   ChevronDown,
   SearchX,
-  HeartPulse,
 } from "lucide-react";
 import { gejala } from "../data/gejala";
 
@@ -40,11 +39,6 @@ export default function Hasil() {
     navigate("/");
   };
 
-  /**
-   * Indikator visual berdasarkan jumlah gejala cocok — bukan persentase.
-   * Digunakan hanya untuk membedakan tampilan secara visual, bukan sebagai
-   * nilai kepastian/confidence yang diklaim secara medis.
-   */
   const getMatchStyle = (gejalaCocok) => {
     if (gejalaCocok >= 5)
       return {
@@ -85,7 +79,7 @@ export default function Hasil() {
           </p>
         </div>
 
-        {/* Disclaimer / Alert (Warning Style - Amber) */}
+        {/* Disclaimer */}
         <div className="flex items-start gap-3 p-4 rounded-lg border border-amber-200 bg-amber-50/50 text-amber-900">
           <Info className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
           <p className="text-sm leading-normal font-medium">
@@ -101,14 +95,15 @@ export default function Hasil() {
               const { penyakit, gejalaCocok, totalGejala, gejalaCocokList } = hasil;
               const isExpanded = expandedId === penyakit.id;
               const isTop = index === 0;
+              const matchStyle = getMatchStyle(gejalaCocok);
 
               return (
                 <div
                   key={penyakit.id}
-                  className={`rounded-xl border bg-white text-slate-950 overflow-hidden transition-all ${isTop ? "ring-1 ring-slate-950 border-slate-950" : "border-slate-200"
-                    }`}
+                  className={`rounded-xl border bg-white text-slate-950 overflow-hidden transition-all ${
+                    isTop ? "ring-1 ring-slate-950 border-slate-950" : "border-slate-200"
+                  }`}
                 >
-                  {/* Label paling cocok untuk hasil pertama (Top Match Header tanpa bintang & tanpa teks kanan) */}
                   {isTop && (
                     <div className="bg-slate-900 px-4 py-1.5 flex items-center">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-white">
@@ -117,7 +112,6 @@ export default function Hasil() {
                     </div>
                   )}
 
-                  {/* Header — always visible (Accordion Trigger) */}
                   <button
                     type="button"
                     onClick={() => setExpandedId(isExpanded ? null : penyakit.id)}
@@ -134,28 +128,27 @@ export default function Hasil() {
                           </span>
                         </div>
 
-                        {/* Gejala cocok — informasi utama */}
                         <div className="flex items-center gap-2 text-xs text-slate-500">
-                          <span className="inline-flex items-center rounded-full bg-slate-100 border border-slate-200 px-2 py-0.5 font-semibold text-slate-900">
+                          <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-semibold ring-1 ring-inset ${matchStyle.badge}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${matchStyle.dot}`} />
                             {gejalaCocok} gejala cocok
                           </span>
                           <span>dari {totalGejala} gejala terdaftar</span>
                         </div>
                       </div>
 
-                      {/* Kanan — Hanya Arrow Trigger (titik indikator dihapus) */}
                       <div className="flex items-center shrink-0 mt-0.5">
                         <ChevronDown
-                          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isExpanded ? "rotate-180 text-slate-900" : ""
-                            }`}
+                          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                            isExpanded ? "rotate-180 text-slate-900" : ""
+                          }`}
                         />
                       </div>
                     </div>
 
-                    {/* Progress bar — Monokrom standar shadcn */}
                     <div className="mt-4 w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-slate-900 transition-all duration-500 ease-in-out"
+                        className={`h-full rounded-full transition-all duration-500 ease-in-out ${matchStyle.bar}`}
                         style={{
                           width: `${Math.round((gejalaCocok / totalGejala) * 100)}%`,
                         }}
@@ -163,7 +156,6 @@ export default function Hasil() {
                     </div>
                   </button>
 
-                  {/* Expandable detail (Accordion Content) */}
                   {isExpanded && (
                     <div className="px-5 pb-5 space-y-5 border-t border-slate-100 bg-white">
                       {/* Deskripsi */}
@@ -176,7 +168,7 @@ export default function Hasil() {
                         </p>
                       </div>
 
-                      {/* Gejala yang cocok (Tanpa icon HeartPulse) */}
+                      {/* Gejala yang cocok */}
                       {gejalaCocokList && gejalaCocokList.length > 0 && (
                         <div className="space-y-2">
                           <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -186,8 +178,11 @@ export default function Hasil() {
                             {gejalaCocokList.map((gId) => (
                               <span
                                 key={gId}
-                                className="inline-flex items-center text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-md"
+                                className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-md"
                               >
+                                <span className="font-mono text-[10px] font-bold text-slate-400">
+                                  {gId}
+                                </span>
                                 {getGejalaName(gId)}
                               </span>
                             ))}
@@ -213,7 +208,6 @@ export default function Hasil() {
             })}
           </div>
         ) : (
-          /* Empty state */
           <div className="bg-white rounded-xl border border-slate-200 p-12 text-center max-w-md mx-auto space-y-3">
             <div className="mx-auto w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
               <SearchX className="w-5 h-5 text-slate-400" />
