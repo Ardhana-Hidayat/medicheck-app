@@ -30,7 +30,7 @@ export default function Diagnosa() {
   const filteredGejala = useMemo(
     () =>
       gejala.filter((g) =>
-        g.nama.toLowerCase().includes(searchQuery.toLowerCase())
+        g.nama.toLowerCase().includes(searchQuery.toLowerCase()) || g.id.toLowerCase().includes(searchQuery.toLowerCase())
       ),
     [searchQuery]
   );
@@ -119,7 +119,7 @@ export default function Diagnosa() {
                         >
                           {isSelected && <Check className="w-3 h-3" strokeWidth={3} />}
                         </div>
-                        <span className="leading-none">{g.nama}</span>
+                        <span className="leading-none">{g.id} - {g.nama}</span>
                       </button>
                     );
                   })}

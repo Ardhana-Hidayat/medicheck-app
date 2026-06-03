@@ -9,7 +9,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
       <div className="max-w-5xl mx-auto px-4 md:px-6">
         <div className="flex h-14 items-center justify-between">
           
