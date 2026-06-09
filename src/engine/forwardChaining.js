@@ -10,14 +10,6 @@ export const getGejalaDariPenyakit = (penyakitId) => {
   return gejala.filter((g) => gejalaIds.includes(g.id));
 };
 
-export const getStatistik = () => {
-  return {
-    totalPenyakit: penyakit.length,
-    totalGejala: gejala.length,
-    totalRules: rules.length,
-  };
-};
-
 export const forwardChaining = (gejalaDipilih) => {
   if (!gejalaDipilih || gejalaDipilih.length === 0) {
     return [];
@@ -35,7 +27,7 @@ export const forwardChaining = (gejalaDipilih) => {
 
     const gejalaCocok = gejalaCocokList.length;
 
-    // Jika minimal 1 rule terpicu (IF terpenuhi) → THEN: penyakit ini teridentifikasi
+    // Jika minimal 1 rule terpenuhi (IF terpenuhi) → THEN: penyakit ini teridentifikasi
     if (gejalaCocok > 0) {
       hasil.push({
         penyakit: p,
@@ -46,7 +38,7 @@ export const forwardChaining = (gejalaDipilih) => {
     }
   });
 
-  // Urutkan descending berdasarkan jumlah gejala cocok
+  // Urutkan descending berdasarkan banyak jumlah gejala cocok
   hasil.sort((a, b) => b.gejalaCocok - a.gejalaCocok);
 
   return hasil;
